@@ -1,0 +1,134 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section id="hero" class="hero mb-5">
+    <div class="container text-center" data-aos="fade-down" data-aos-duration="1200">
+        <h1 class="shimmer">{{ hero.title }}</h1>
+        <p>{{ hero.subtitle }}</p>
+        {% if hero.button_link %}
+        <a href="{{ hero.button_link }}" class="btn btn-primary btn-lg mt-3" data-aos="zoom-in" data-aos-delay="300">{{ hero.button_text }}</a>
+        {% endif %}
+        <div class="section-divider" data-aos="fade-up" data-aos-delay="500"></div>
+    </div>home
+</section>
+
+<!-- About Me Section -->
+<section id="about" class="container mb-5">
+    <h2 class="shimmer text-center" data-aos="fade-right">About Me</h2>
+    <div class="section-divider" data-aos="fade-left"></div>
+    <div class="row align-items-center mt-4">
+        {% if about.profile_image %}
+        <div class="col-md-4 text-center mb-3" data-aos="fade-up" data-aos-delay="100">
+            <img src="{{ about.profile_image.url }}" class="img-fluid rounded-circle shadow" alt="Profile Image">
+        </div>
+        {% endif %}
+        <div class="col-md-8" data-aos="fade-left" data-aos-delay="200">
+            <p>{{ about.description }}</p>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Section -->
+<section id="projects" class="container mb-5">
+    <h2 class="shimmer text-center" data-aos="fade-right">My Projects</h2>
+    <div class="section-divider" data-aos="fade-left"></div>
+    <div class="row g-4 mt-4">
+        {% for project in projects %}
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'100' }}">
+            <div class="card project-card h-100 shadow-sm">
+                {% if project.image %}
+                <img src="{{ project.image.url }}" class="card-img-top" alt="{{ project.title }}">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text">{{ project.description|truncatechars:120 }}</p>
+                    {% if project.link %}
+                    <a href="{{ project.link }}" class="btn btn-primary mt-auto" target="_blank">View Project</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Skills Section -->
+<section id="skills" class="container mb-5">
+    <h2 class="shimmer text-center" data-aos="fade-right">Skills</h2>
+    <div class="section-divider" data-aos="fade-left"></div>
+    <div class="row g-4 justify-content-center mt-4">
+        {% for skill in skills %}
+        <div class="col-sm-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:'100' }}">
+            <div class="card skill-card text-center shadow-sm p-3">
+                <div class="card-body">
+                    {% if skill.icon_class %}
+                    <i class="{{ skill.icon_class }} fa-2x mb-2"></i>
+                    {% endif %}
+                    <h5 class="card-title">{{ skill.name }}</h5>
+                    <p class="card-text">{{ skill.level }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="container mb-5">
+    <h2 class="shimmer text-center" data-aos="fade-right">Contact Me</h2>
+    <div class="section-divider" data-aos="fade-left"></div>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm p-4" data-aos="fade-up" data-aos-delay="100">
+                <div id="contact-alert"></div>
+                <form id="contactForm" method="post" action="{% url 'home' %}#contact">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // AJAX contact form submission
+    const contactForm = document.getElementById('contactForm');
+    contactForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        const formData = new FormData(contactForm);
+        fetch("{% url 'home' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const alertDiv = document.getElementById('contact-alert');
+            alertDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+            contactForm.reset();
+        })
+        .catch(error => {
+            const alertDiv = document.getElementById('contact-alert');
+            alertDiv.innerHTML = `<div class="alert alert-danger">An error occurred. Try again!</div>`;
+        });
+    });
+</script>
+
+{% endblock %}
